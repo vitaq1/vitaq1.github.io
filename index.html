@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sen&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sen:wght@700&display=swap" rel="stylesheet">
+    <title>Title</title>
+</head>
+<body>
+
+<button onclick="setDisabled(false)">Очистить кэш</button>
+<button id="close">Закрыть</button>
+
+
+<dialog class="component">
+    <div class="content">
+
+        <div class="top_label">
+            <span class="close" onclick="closeComponent(dialog)"></span>
+        </div>
+
+        <div class="tips">
+            <div class="tip_text">
+                <p class="text_header" id="tipNum"></p>
+                <p class="text" id="tip"></p>
+            </div>
+        </div>
+
+        <div class="bottom_label">
+            <input id="disable_flag" type="checkbox" name="state" value="DISABLE">
+            <label id = "disable_label" for="disable_flag">DISABLE TIPS</label>
+
+            <div class="nav">
+                <p><i class="arrow left" onclick="prev()"></i></p>
+                <div id="dots">
+                </div>
+                <p><i class="arrow right" onclick="next()"></i></p>
+            </div>
+        </div>
+    </div>
+
+</dialog>
+
+<script>
+    const TIME_TO_SHOW = 0;
+    let dialog = document.querySelector('dialog');
+
+    document.querySelector('#close').onclick = function () {
+        dialog.close();
+    };
+    let checkBox = document.querySelector('#disable_flag');
+    checkBox.addEventListener('change', function () {
+        if (this.checked) {
+            setDisabled(true);
+        } else {
+            setDisabled(false);
+        }
+    });
+
+    if (localStorage.length === 0)
+        setTimeout(showComponent, TIME_TO_SHOW, dialog);
+
+    document.addEventListener("keydown",function (event) {
+        if (event.code === 'ArrowLeft') prev();
+        if (event.code === 'ArrowRight') next();
+        if (event.code === "Escape") closeComponent(dialog);
+    })
+
+    let tipsArray = [
+        "The first step in making a better to-do list is deciding where to keep it—and there's nothing wrong with paper! If a paper list works for you, great. A simple spreadsheet or word processing document is fine, too.",
+        "Very few people who are good to-dos lists have only one. All great to-do apps let you make multiple lists. Get started with a few that are easy and obvious, such as Work, Personal, and Household.",
+        "When a new task pops into your head, write it on your to-do list as quickly as possible. When you add tasks to your to-do list as soon as you think of them, it prevents you from dwelling on them.",
+        "When a task has a due date, add it. Due dates help you prioritize. Not every task needs a hard and fast due date, but sometimes it helps to add them in your app anyway. Assigning due dates is effective for two reasons.",
+        "Start every day by throwing an eye over your \"today\" to-do list and assessing whether it's reasonable. Then revise it. ",
+        "On average, I check off between three and five tasks per day. If I've inadvertently scheduled 12 tasks for the day, I know I won't get to them all, which means I have to re-prioritize and change some due dates.",
+        "What you write on your to-do list matters. Put tasks on your lists, rather than objectives and goals. To do that, you have to know the difference between them.",
+    ];
+
+    let dotsArray = [];
+
+    let tipPointer = 0;
+    let tip = document.getElementById("tip");
+    let tipNum = document.getElementById("tipNum");
+
+    while (tipsArray.length > 16) tipsArray.pop();
+
+    function next() {
+        if (tipPointer++ >= tipsArray.length - 1) tipPointer = 0;
+        goTo(tipPointer);
+    }
+
+    function prev() {
+        if (tipPointer-- <= 0) tipPointer = tipsArray.length - 1;
+        goTo(tipPointer);
+    }
+
+    function goTo(pointer = 0) {
+        tipPointer = pointer;
+        tip.innerHTML = tipsArray[tipPointer];
+        for (let i = 0; i < dotsArray.length; i++) {
+            dotsArray[i].className = "dot";
+            tipNum.innerText = "TIP " + (pointer + 1);
+            if (pointer === i) {
+                dotsArray[i].className = "selected_dot"
+            }
+        }
+    }
+
+    function createTips() {
+        let dots = document.querySelector("#dots");
+        for (let i = 0; i < tipsArray.length; i++) {
+            let dot = document.createElement('div');
+
+            dot.className = "dot";
+            if (i === 0) dot.className = "selected_dot";
+            if (i === 0) tip.innerHTML = tipsArray[0];
+            if (i === 0) tipNum.innerText = "TIP " + 1;
+
+            dot.addEventListener('click', function () {
+                goTo(i);
+            });
+            dots.appendChild(dot);
+            dotsArray.push(dot);
+        }
+    }
+
+
+    function showComponent(dialog) {
+        dialog.show();
+        createTips(tipsArray.length)
+    }
+
+    function closeComponent(dialog) {
+        dialog.close();
+    }
+
+    function setDisabled(state) {
+        if (state === true) localStorage.setItem("disabled", "true");
+        else localStorage.clear();
+    }
+
+</script>
+
+</body>
+</html>
